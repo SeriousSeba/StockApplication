@@ -1,4 +1,4 @@
-package pl.agh.edu.stockinger.model;
+package pl.agh.edu.stockinger.model.entity;
 
 import lombok.Data;
 

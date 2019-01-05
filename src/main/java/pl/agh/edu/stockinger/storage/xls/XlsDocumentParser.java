@@ -1,12 +1,12 @@
-package pl.agh.edu.stockinger.storage;
+package pl.agh.edu.stockinger.storage.xls;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import pl.agh.edu.stockinger.exception.MissingQuotation;
-import pl.agh.edu.stockinger.model.SingleDayQuote;
+import pl.agh.edu.stockinger.exception.MissingQuotationException;
+import pl.agh.edu.stockinger.model.entity.SingleDayQuote;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class XlsDocumentParser {
 
-    public SingleDayQuote getCompanyQuotation(String company, File document) throws IOException, MissingQuotation {
+    public SingleDayQuote getCompanyQuotation(String company, File document) throws IOException, MissingQuotationException {
         Workbook workbook = new HSSFWorkbook(new FileInputStream(document));
         Sheet sheet = workbook.getSheetAt(0);
         AtomicReference<Row> result = new AtomicReference<>();
@@ -32,7 +32,7 @@ public class XlsDocumentParser {
         if(result.get() != null){
             return createSingleDayQuote(result.get());
         } else {
-            throw new MissingQuotation("No quotation for that company on day " + document.getName());
+            throw new MissingQuotationException("No quotation for that company on day " + document.getName());
         }
     }
 

@@ -1,10 +1,10 @@
 package pl.agh.edu.stockinger.service;
 
 import org.springframework.stereotype.Service;
-import pl.agh.edu.stockinger.exception.MissingQuotation;
-import pl.agh.edu.stockinger.model.SingleDayQuote;
+import pl.agh.edu.stockinger.exception.MissingQuotationException;
+import pl.agh.edu.stockinger.model.entity.SingleDayQuote;
 import pl.agh.edu.stockinger.storage.StorageSupervisor;
-import pl.agh.edu.stockinger.storage.XlsStorage;
+import pl.agh.edu.stockinger.storage.xls.XlsStorage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ public class QuotationsService {
 
     private StorageSupervisor supervisor = new XlsStorage();
 
-    public List<SingleDayQuote> getDailyQuotations(LocalDateTime localDateTime) throws IOException, MissingQuotation {
+    public List<SingleDayQuote> getDailyQuotations(LocalDateTime localDateTime) throws IOException, MissingQuotationException {
         List<SingleDayQuote> result = supervisor.getDailyQuotations(localDateTime);
         return result;
     }
@@ -28,7 +28,7 @@ public class QuotationsService {
             try {
                 result.add(supervisor.getDailyQuotation(localDateTime, companyName));
                 i++;
-            }  catch (MissingQuotation missingQuotation) {}
+            }  catch (MissingQuotationException missingQuotationException) {}
             localDateTime = localDateTime.minusDays(1);
         }
         return result;
@@ -40,11 +40,16 @@ public class QuotationsService {
         for (int i = 0; i < 31; i++){
             try {
                 result = supervisor.getDailyQuotations(localDateTime);
-            } catch (MissingQuotation missingQuotation) {
+            } catch (MissingQuotationException missingQuotationException) {
                 localDateTime = localDateTime.minusDays(1);
             }
         }
         return result;
+    }
+
+    public SingleDayQuote getLastQuotation(String companyName) throws IOException, MissingQuotationException {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        return supervisor.getDailyQuotation(localDateTime, companyName);
     }
 
 

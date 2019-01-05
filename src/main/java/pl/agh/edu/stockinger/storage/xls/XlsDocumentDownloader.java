@@ -1,11 +1,9 @@
-package pl.agh.edu.stockinger.storage;
+package pl.agh.edu.stockinger.storage.xls;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-
-
 
 public class XlsDocumentDownloader {
     private static final String XLS_URL_PATTERN = "https://www.gpw.pl/archiwum-notowan?fetch=1&type=10&instrument=&date=";

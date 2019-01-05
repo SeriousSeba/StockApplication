@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import pl.agh.edu.stockinger.model.SingleDayQuote;
+import pl.agh.edu.stockinger.model.entity.SingleDayQuote;
 import pl.agh.edu.stockinger.service.QuotationsService;
 
 import java.io.IOException;
@@ -25,6 +25,7 @@ public class MainViewController {
             try {
                 List<SingleDayQuote> quotations = quotationsService.getLastQuoatations();
                 model.addAttribute("quotations", quotations);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
