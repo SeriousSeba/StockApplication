@@ -16,6 +16,11 @@ public class QuotationsService {
 
     private StorageSupervisor supervisor = new XlsStorage();
 
+
+    public List<SingleDayQuote> getTodayQuotations() throws IOException, MissingQuotationException {
+        return getDailyQuotations(LocalDateTime.now());
+    }
+
     public List<SingleDayQuote> getDailyQuotations(LocalDateTime localDateTime) throws IOException, MissingQuotationException {
         List<SingleDayQuote> result = supervisor.getDailyQuotations(localDateTime);
         return result;

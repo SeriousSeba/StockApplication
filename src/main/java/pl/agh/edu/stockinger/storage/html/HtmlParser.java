@@ -18,32 +18,53 @@ public class HtmlParser {
         private static final String FLOW_URL_ADDRESS = "https://www.biznesradar.pl/raporty-finansowe-rachunek-zyskow-i-strat/";
         private static final String BALANCE_URL_ADDRESS  = "https://www.biznesradar.pl/raporty-finansowe-bilans/";
 
+        private static final String TABLE_CLASS = "report-table";
 
-
-        public List<ProfitAndLoss> getFinanceData(String companyName) throws MissingCompanyException {
-                Document document =  getCompanyDocument(FLOW_URL_ADDRESS, companyName);
-                Elements table = document.getElementsByClass("report-table");
+        public List<ProfitAndLoss> getFinanceData(Document document) throws MissingCompanyException {
+                Elements table = getTableFromDocument(document);
                 List<String> timePeriods = getTimePeriods(table);
                 Elements rows = table.get(0).select("tr[data-field]");
                 List<ProfitAndLoss> profitsAndLoss = getProfitsAndLoss(rows, timePeriods);
                 return profitsAndLoss;
         }
 
-        public List<CompanyBalance> getBalanceData(String companyName) throws MissingCompanyException {
-                Document document = getCompanyDocument(BALANCE_URL_ADDRESS, companyName);
-                Elements table = document.getElementsByClass("report-table");
+        public List<CompanyBalance> getBalanceData(Document document) throws MissingCompanyException {
+                Elements table = getTableFromDocument(document);
                 List<String> timePeriods = getTimePeriods(table);
                 Elements rows = table.get(0).select("tr[data-field]");
                 List<CompanyBalance> companyBalance = getCompanyBalance(rows, timePeriods);
                 return companyBalance;
         }
 
+        public List<String> getTimePeriods(Elements table){
+                Elements periodColumns = table.get(0).getElementsByClass("thq h");
+                periodColumns.addAll(table.get(0).getElementsByClass("thq h newest"));
+                List<String> periods = new ArrayList<>();
+                periodColumns.forEach(
+                        element -> periods.add(element.text())
+                );
+                return periods;
+        }
+
+        public Elements getTableFromDocument(Document document){
+                return document.getElementsByClass(TABLE_CLASS);
+        }
+
+        public Document getCompanyBalanceDocument(String companyName) throws MissingCompanyException {
+               return getCompanyDocument(BALANCE_URL_ADDRESS, companyName);
+        }
+
+        public Document getCompanyFlowDocument(String companyName) throws MissingCompanyException {
+                return getCompanyDocument(FLOW_URL_ADDRESS, companyName);
+        }
+
         private Document getCompanyDocument(String url, String companyName) throws MissingCompanyException {
                 Document document;
                 try {
-                        document = Jsoup.connect(BALANCE_URL_ADDRESS + companyName).get();
+                        document = Jsoup.connect(url + companyName).followRedirects(true).get();
                         return document;
                 } catch (IOException e) {
+                        e.printStackTrace();
                         throw new MissingCompanyException("No company found with that name");
                 }
         }
@@ -76,16 +97,6 @@ public class HtmlParser {
                         }
                 );
                 return result;
-        }
-
-        private List<String> getTimePeriods(Elements allTableRows){
-                Elements periodColumns = allTableRows.get(0).getElementsByClass("thq h");
-                periodColumns.addAll(allTableRows.get(0).getElementsByClass("thq h newest"));
-                List<String> periods = new ArrayList<>();
-                periodColumns.forEach(
-                        element -> periods.add(element.text())
-                );
-                return periods;
         }
 
         private ProfitAndLoss parseFinancialTable(Elements rows, int column){
